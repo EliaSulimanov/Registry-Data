@@ -21,6 +21,7 @@ namespace Registry_Data
                     "3. Programs\n" +
                     "4. GPU\n" +
                     "5. Low Rights\n" +
+                    "6. PC Info\n" +
                     "Your Choise: ");
                 PrintOptions(int.Parse(Console.ReadLine()));
                 Console.Clear();
@@ -60,6 +61,9 @@ namespace Registry_Data
                     break;
                 case 5:
                     LowRights();
+                    break;
+                case 6:
+                    PCInfo();
                     break;
                 default:
                     break;
@@ -101,8 +105,8 @@ namespace Registry_Data
             catch { }
             try
             {
-                RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Internet Explorer\Desktop\General", false);
-                string wallPaper = (string)registryKey.GetValue("WallpaperSource");
+                RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", false);
+                string wallPaper = (string)registryKey.GetValue("WallPaper");
                 Console.WriteLine("Wallpaper Source: " + wallPaper);
             }
             catch { }
@@ -184,17 +188,21 @@ namespace Registry_Data
 
                 foreach(string right in rights)
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Right: " + right);
+                    Console.ForegroundColor = ConsoleColor.White;
+
                     string[] subKeysCodes = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Internet Explorer\Low Rights\" + right, false).GetSubKeyNames();
                     foreach(string program in subKeysCodes)
                     {
                         RegistryKey programName = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Internet Explorer\Low Rights\" + right + @"\" + program, false);
-                        string appName = (string)registryKey.GetValue("AppName");
-                        string appPath = (string)registryKey.GetValue("AppPath");
+                        string appName = (string)programName.GetValue("AppName");
+                        string appPath = (string)programName.GetValue("AppPath");
 
                         Console.WriteLine("Name: " + appName);
                         Console.WriteLine("Path: " + appPath);
                     }
+                    Console.WriteLine("");
                 }
             }
             catch { }
@@ -230,6 +238,32 @@ namespace Registry_Data
                 return "Error";
             }
             return av;
+        }
+
+        private static void PCInfo()
+        {
+            Console.Clear();
+            PrintLogo();
+
+            try
+            {
+                RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskFlow\DeviceCache", false);
+                String[] values = registryKey.GetSubKeyNames();
+                foreach (string value in values)
+                {
+                    RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\TaskFlow\DeviceCache\" + value, false);
+                    string deviceMake = (string)key.GetValue("DeviceMake");
+                    string deviceModel = (string)key.GetValue("DeviceModel");
+                    string deviceName = (string)key.GetValue("DeviceName");
+                    Console.WriteLine("Device Make: " + deviceMake);
+                    Console.WriteLine("Device Model: " + deviceModel);
+                    Console.WriteLine("Device Name: " + deviceName);
+                }
+            }
+            catch { }
+
+            Console.WriteLine("Press Any Key To Return");
+            Console.ReadKey();
         }
     }
 }
