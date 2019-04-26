@@ -23,7 +23,14 @@ namespace Registry_Data
                     "5. Low Rights\n" +
                     "6. PC Info\n" +
                     "Your Choise: ");
-                PrintOptions(int.Parse(Console.ReadLine()));
+                try
+                {
+                    PrintOptions(int.Parse(Console.ReadLine()));
+                }
+                catch
+                {
+                    PrintOptions(0);
+                }
                 Console.Clear();
             }
         }
@@ -147,10 +154,21 @@ namespace Registry_Data
         {
             Console.Clear();
             PrintLogo();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("Programs:");
+            Console.ForegroundColor = ConsoleColor.White;
 
             try
             {
-                Console.WriteLine("Anvi-Virus: " + GetAvName());
+                RegistryKey registryKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall", false);
+                string[] programs = registryKey.GetSubKeyNames();
+                foreach(string program in programs) {
+                    RegistryKey programNameKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" + program, false);
+                    Console.WriteLine(programNameKey.GetValue("DisplayName"));
+                }
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Anti-Virus: " + GetAvName());
+                Console.ForegroundColor = ConsoleColor.White;
             }
             catch { }
 
